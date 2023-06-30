@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  app:
+    container_name: ${COMPOSE_PROJECT_NAME}_app
+    build:
+      context: ../
+      dockerfile: ./docker/php/Dockerfile
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+        SSH_PRIVATE_KEY_PATH: "${SSH_PRIVATE_KEY_PATH}"
+    expose:
+      - "9000"
+    volumes:
+      - "../:/home/app/code"
+      - "${HOME}/.composer:/home/app/.composer"
+      - "${HOME}/.gitconfig:/home/app/.gitconfig:ro"
+      - "${SSH_AUTH_SOCK}:/ssh-agent"
+      - "${HOME}/.ssh/config:/home/app/.ssh/config:ro"
+      - "${HOME}/.ssh/known_hosts:/home/app/.ssh/known_hosts:ro"
+      - "./.history:/home/app/.history"
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
+      - XDEBUG_CONFIG=remote_host=${XDEBUG_CONFIG_REMOTE_HOST:-host.docker.internal}
+      - PHP_IDE_CONFIG=serverName=${PHP_IDE_CONFIG_SERVER_NAME}
